@@ -1,0 +1,35 @@
+{
+    "archive": {
+        "exclude": [
+            "test\/*.php"
+        ]
+    },
+    "authors": [
+        {
+            "name": "Karkael Haunter",
+            "email": "karkael@gmail.com",
+            "homepage": "https:\/\/github.com\/karkael64",
+            "role": "Creator, developer"
+        }
+    ],
+    "description": "PHP async, await and Promise classes, about to run async methods",
+    "keywords": [
+        "async",
+        "await",
+        "Promise",
+        "tools",
+        "improve",
+        "performance",
+        "javascript-like"
+    ],
+    "homepage": "https:\/\/github.com\/karkael64\/amonite-php",
+    "license": "Apache-2.0",
+    "name": "amonite\/async",
+    "require": {
+        "php": ">=7.2"
+    },
+    "type": "library",
+    "version": "2.0.0",
+    "timestamp": 1565626490590.747,
+    "date": "2019-08-12T18:14:50.590Z"
+}
