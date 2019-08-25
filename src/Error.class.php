@@ -1,4 +1,7 @@
 <?php
 
 namespace Async;
-class AsyncError extends \Error {}
+
+if (!\class_exists("Async\AsyncError")) {
+  class AsyncError extends \Error {}
+}
