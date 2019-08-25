@@ -7,7 +7,7 @@ require_once __DIR__ . "/Promise.class.php";
 
 /**
  * @function await Create an async instance and register it in await context.
- * @param $env {Closure|callable} is a function executed to register every async
+ * @param $env {Closure.<$arg1 {*}, ...} is a function executed to register every async
  *    instances, the function has for list of parameters `$args` and set `$this`
  *    at value `$ctx` or at this instance of `Async\Await`.
  * @param $args {array|null} is the argument sent as list of parameters in `$env`
@@ -15,7 +15,7 @@ require_once __DIR__ . "/Promise.class.php";
  * @param $ctx {Object|null} is the context where `$env` is executed
  *    (default=`$this`).
  * @return {Async\Await} this instance.
- * @throws {Async|AsyncError} if first parameter is not a callable.
+ * @throws {Async|AsyncError} if first parameter is not a Closure.
  */
 
 function await($env, $args = null, $ctx = null) {
@@ -38,8 +38,8 @@ function await($env, $args = null, $ctx = null) {
  * @param $ctx {Object} the context where `$fn` and `$then` are executed (it
  *    means `$this` will be `$ctx` value).
  * @return {Async\Async} new instance.
- * @throws {Async\AsyncError} if first parameter is not callable.
- * @throws {Async\AsyncError} if second parameter is not callable.
+ * @throws {Async\AsyncError} if first parameter is not a Closure.
+ * @throws {Async\AsyncError} if second parameter is not a Closure.
  * @throws {Async\AsyncError} if this instance is not created in an `await` context.
  */
 

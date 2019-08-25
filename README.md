@@ -152,34 +152,17 @@ new Async\Async($test, $then, array($delay));
 
 # Documentation
 
-1. [function `await`](#function-awaitclosure-fn_env-args--null-int-delay--3000--null)
-2. [function `async`](#function-asyncclosure-expect-args--null-int-delay--3000--null)
-3. [class `Async\Await`](#class-asyncawait)
-    1. [construct `new Await`](#construct-await--new-asyncawaitclosure-fn_env-args--null-int-delay--3000--asyncawait)
-    2. [method `add`](#method-await-addasyncasync-async--asyncawait)
-    3. [method `remove`](#method-await-removeasyncasync-async--asyncawait)
-4. [class `Async\Async`](#class-asyncasync)
-    1. [construct `new Async`](#construct-async--new-asyncasyncclosure-expect-args--null-int-delay--3000--asyncasync)
-    6. [method `test`](#method-async-execute--null)
-5. [class `Async\Promise`](#class-asyncpromise)
-    1. [construct `new Promise`](#construct-prom--new-asyncpromiseclosure-fn-args--null)
-    2. [method `then`](#method-prom-thenclosure-then--asyncasync)
-    3. [method `catch`](#method-prom-catchclosure-catch--asyncasync)
-    4. [method `finally`](#method-prom-finallyclosure-finally--asyncasync)
-    5. [static method `Promise::resolve`](#static-method-asyncpromiseresolveargs--null--asyncasync)
-    5. [static method `Promise::reject`](#static-method-asyncpromiserejectargs--null--asyncasync)
-
 ## Function `await(\Closure $fn_env, $args = null, $context = null) : null`
 
 _Parameters:_
-* `$fn_env($args = null, Async\Await $self)` (Closure|callable) is the function that register its async events, the function has for first parameter `$args` and second parameter `$self` the current instance of `Async\Await`;
+* `$fn_env($args = null, Async\Await $self)` (Closure) is the function that register its async events, the function has for first parameter `$args` and second parameter `$self` the current instance of `Async\Await`;
 * `$args` (*) is the argument sent as first parameter in `$fn_env` (default=`null`);
 * `$delay` (int) set a delay in milliseconds until await environment send an error timeout, set to 0 to ignore (default=`3000`).
 
 _Returns:_ `Async\Await` new instance.
 
 _Throws:_
-* `Async\AsyncError` if first parameter is not callable.
+* `Async\AsyncError` if first parameter is not a Closure.
 
 Creates an environment in the function `$fn_env` where you can create async functions. The environment block script until every async functions ends or at timeout (3000ms if not unset).
 
@@ -187,34 +170,34 @@ Creates an environment in the function `$fn_env` where you can create async func
 ## Function `async(\Closure $expect, \Closure $then, $args = null, $context = null) : null`
 
 _Parameters:_
-* `$expect($arg1 = null, ...)` (Closure|callable) is a first function executed (where `$args` is the list of `$expect` parameters) each ticks of `await` environment until it return a truthfully value, sent in `$then` as second parameter; if function throws an error, send it to `$then` as first parameter;
-* `$then($error = null, $result = null)` (Closure|callable) is the function executed when event happened, where `$error` is the error thrown in `$expect` and `$result` is the truthfully value returned by `$expect`;
+* `$expect($arg1 = null, ...)` (Closure) is a first function executed (where `$args` is the list of `$expect` parameters) each ticks of `await` environment until it return a truthfully value, sent in `$then` as second parameter; if function throws an error, send it to `$then` as first parameter;
+* `$then($error = null, $result = null)` (Closure) is the function executed when event happened, where `$error` is the error thrown in `$expect` and `$result` is the truthfully value returned by `$expect`;
 * `$args` (*) is the argument sent as third parameter in `$expect` functions (default=`null`);
 * `$context` (null|Object) is the object context in where these functions are executed (`$this` has for value `$context` in `$expect` and `$then` functions execution).*
 
 _Returns:_ `Async\Async` new instance.
 
 _Throws:_
-* `Async\AsyncError` if first parameter is not callable ;
+* `Async\AsyncError` if first parameter is not a Closure ;
 * `Async\AsyncError` if this instance is not created in an `await` environment.
 
 Register a function that wait to be resolved or rejected each ticks of `await` environment or a timeout error (3000ms if not unset).
 
 
 ## Class `Async\Await`
-### Construct `$await = new Async\Await(\Closure $fn_env, $args = null, int $delay = 3000) : Async\Await`
+### Construct `$await = new Async\Await(\Closure $env, array $args = null, int $delay = 3000) : Async\Await`
 
 _Parameters:_
-* `$fn_env($args = null, Async\Await $self)` (Closure|callable) is the function that register its async events, the function has for first parameter `$args` and second parameter `$self` the current instance of `Async\Await`;
-* `$args` (*) is the argument sent as first parameter in `$fn_env` (default=`null`);
+* `$env($arg1 = null, ...)` (Closure) is the function that register its async events, the function has for first parameter `$args` and second parameter `$self` the current instance of `Async\Await`;
+* `$args` (array|null) is the argument sent as first parameter in `$env` (default=`null`);
 * `$delay` (int) set a delay in milliseconds until await environment send an error timeout, set to 0 to ignore (default=`3000`).
 
 _Returns:_ `Async\Await` new instance.
 
 _Throws:_
-* `Async\AsyncError` if first parameter is not callable.
+* `Async\AsyncError` if first parameter is not a Closure.
 
-Creates an environment in the function `$fn_env` where you can create async functions. The environment block script until every async functions ends or at timeout (3000ms if not unset).
+Creates an environment in the function `$env` where you can create async functions. The environment block script until every async functions ends or at timeout (3000ms if not unset).
 
 
 ### Method `$await->add(Async\Async $async) : Async\Await`
@@ -242,8 +225,8 @@ This function unregister your `Async\Async` in this `await` environment. When th
 ### Construct `$async = new Async\Async(\Closure $expect, \Closure $then, $args = null, $context = null) : Async\Async`
 
 _Parameters:_
-* `$expect($arg1 = null, ...)` (Closure|callable) is a first function executed (where `$args` is the list of `$expect` parameters) each ticks of `await` environment until it return a truthfully value, sent in `$then` as second parameter; if function throws an error, send it to `$then` as first parameter;
-* `$then($error = null, $result = null)` (Closure|callable) is the function executed when event happened, where `$error` is the error thrown in `$expect` and `$result` is the truthfully value returned by `$expect`;
+* `$expect($arg1 = null, ...)` (Closure) is a first function executed (where `$args` is the list of `$expect` parameters) each ticks of `await` environment until it return a truthfully value, sent in `$then` as second parameter; if function throws an error, send it to `$then` as first parameter;
+* `$then($error = null, $result = null)` (Closure) is the function executed when event happened, where `$error` is the error thrown in `$expect` and `$result` is the truthfully value returned by `$expect`;
 * `$args` (*) is the argument sent as third parameter in `$expect` functions (default=`null`);
 * `$context` (null|Object) is the object context in where these functions are executed (`$this` has for value `$context` in `$expect` and `$then` functions execution).
 
@@ -251,7 +234,7 @@ _Returns:_
 * `Async\Async` new instance.
 
 _Throws:_
-* `Async\AsyncError` if first parameter is not callable ;
+* `Async\AsyncError` if first parameter is not a Closure ;
 * `Async\AsyncError` if this instance is not created in an `await` environment.
 
 Register a function that wait to be resolved or rejected each ticks of `await` environment or a timeout error (3000ms if not unset).
@@ -272,13 +255,13 @@ ____
 ### Construct `$prom = new Async\Promise(\Closure $fn, $args = null)`
 
 _Parameters:_
-* `$fn(\Closure $resolve($result = null), \Closure $reject($error = null), $args = null, Async\Promise $self)` (Closure|callable) is executed right there and wait for a resolve or a reject event, where `$args` is sent to third parameter of `$fn` ;
+* `$fn(\Closure $resolve($result = null), \Closure $reject($error = null), $args = null, Async\Promise $self)` (Closure) is executed right there and wait for a resolve or a reject event, where `$args` is sent to third parameter of `$fn` ;
 * `$args` (*) is the parameter sent as third parameter in `$fn` (default=`null`).
 
 _Return:_ `Async\Promise` new instance.
 
 _Throws:_
-* `Async\AsyncError` if first parameter is not callable ;
+* `Async\AsyncError` if first parameter is not a Closure ;
 * `Async\AsyncError` if promise trigger `catch` event but there is no `catch` function registered.
 
 Create a `Async\Promise` instance. It helps to flat asynchronous functions.
@@ -286,11 +269,11 @@ Create a `Async\Promise` instance. It helps to flat asynchronous functions.
 ### Method `$prom->then(\Closure $then) : Async\Async`
 
 _Parameter:_
-* `$then($args = null)` (Closure|callable) is called when this `Async\Promise` instance is resolved.
+* `$then($args = null)` (Closure) is called when this `Async\Promise` instance is resolved.
 
 _Returns:_ `Async\Promise` self instance.
 
-_Throws:_ `Async\AsyncError` if first parameter is not callable.
+_Throws:_ `Async\AsyncError` if first parameter is not a Closure.
 
 Register another function executed when this instance is resolved.
 
@@ -298,11 +281,11 @@ Register another function executed when this instance is resolved.
 ### Method `$prom->catch(\Closure $catch) : Async\Async`
 
 _Parameter:_
-* `$catch($args = null)` (Closure|callable) is called when this `Async\Promise` instance is rejected or when `then` functions throws an error.
+* `$catch($args = null)` (Closure) is called when this `Async\Promise` instance is rejected or when `then` functions throws an error.
 
 _Returns:_ `Async\Promise` self instance.
 
-_Throws:_ `Async\AsyncError` if first parameter is not callable.
+_Throws:_ `Async\AsyncError` if first parameter is not a Closure.
 
 Register another function executed when this instance is resolved or when `then` functions throws an error.
 
@@ -310,11 +293,11 @@ Register another function executed when this instance is resolved or when `then`
 ### Method `$prom->finally(\Closure $finally) : Async\Async`
 
 _Parameter:_
-* `$finally($args = null)` (Closure|callable) is called when this `Async\Promise` instance ends after a resolve or a reject event.
+* `$finally($args = null)` (Closure) is called when this `Async\Promise` instance ends after a resolve or a reject event.
 
 _Returns:_ `Async\Promise` self instance.
 
-_Throws:_ `Async\AsyncError` if first parameter is not callable.
+_Throws:_ `Async\AsyncError` if first parameter is not a Closure.
 
 Register another function executed when this instance ends after a resolve or a reject event.
 

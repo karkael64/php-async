@@ -1,7 +1,7 @@
 <?php
 
-require_once "async.phar";
-//require_once "index.php";
+//require_once "async.phar";
+require_once "index.php";
 
 await(function () {
 

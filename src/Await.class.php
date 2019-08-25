@@ -12,7 +12,7 @@ if (!\class_exists("Async\Await")) {
 
     /**
      * @method __construct Create an async instance and register it in await context.
-     * @param $env {Closure|callable} is a function executed to register every async
+     * @param $env {Closure.<$arg1 {*}, ...} is a function executed to register every async
      *    instances, the function has for list of parameters `$args` and set `$this`
      *    at value `$ctx` or at this instance of `Async\Await`.
      * @param $args {array|null} is the argument sent as list of parameters in `$env`
@@ -20,7 +20,7 @@ if (!\class_exists("Async\Await")) {
      * @param $ctx {Object|null} is the context where `$env` is executed
      *    (default=`$this`).
      * @return {Async\Await} this instance.
-     * @throws {Async|AsyncError} if first parameter is not a callable.
+     * @throws {Async|AsyncError} if first parameter is not a Closure.
      */
 
     function __construct($env, $args = null, $ctx = null) {
@@ -30,7 +30,7 @@ if (!\class_exists("Async\Await")) {
 
     /**
      * @method env Register async instances.
-     * @param $env {Closure|callable} is a function executed to register every async
+     * @param $env {Closure.<$arg1 {*}, ...} is a function executed to register every async
      *    instances, the function has for list of parameters `$args` and set `$this`
      *    at value `$ctx` or at this instance of `Async\Await`.
      * @param $args {array|null} is the argument sent as list of parameters in `$env`
@@ -38,14 +38,14 @@ if (!\class_exists("Async\Await")) {
      * @param $ctx {Object|null} is the context where `$env` is executed
      *    (default=`$this`).
      * @return {Async\Await} this instance.
-     * @throws {Async|AsyncError} if first parameter is not a callable.
+     * @throws {Async|AsyncError} if first parameter is not a Closure.
      */
 
     function env($env, $args = null, $ctx = null) {
       if (!\is_object($ctx)) $ctx = $this;
 
-      if (\is_callable($env)) $env = \Closure::bind($env, $ctx);
-      else throw new AsyncError("First parameter is not callable");
+      if ($env instanceof \Closure) $env = $env->bindTo($ctx);
+      else throw new AsyncError("First parameter is not a Closure");
 
       $args = \is_array($args) ? $args : array();
 
@@ -53,7 +53,6 @@ if (!\class_exists("Async\Await")) {
         $prev = self::$current;
         self::$current = $this;
         \call_user_func_array($env, $args);
-
         while (\count($this->list)) {
           $i = 0;
           while (isset($this->list[$i])) {
@@ -67,6 +66,7 @@ if (!\class_exists("Async\Await")) {
       } else {
         \call_user_func_array($env, $args);
       }
+
       return $this;
     }
 
