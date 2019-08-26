@@ -4,7 +4,9 @@ namespace Async;
 require_once __DIR__ . "/Error.class.php";
 
 if (!\class_exists("Async\Async")) {
+
   class Async {
+
     private $fn, $then, $args;
 
     /**
@@ -26,10 +28,8 @@ if (!\class_exists("Async\Async")) {
      */
 
     function __construct(\Closure $fn, \Closure $then, $args = null, $ctx = null) {
-      if (!\is_object($ctx)) $ctx = $this;
-
-      $this->fn = $fn->bindTo($ctx);
-      $this->then = $then->bindTo($ctx);
+      $this->fn = \is_null($ctx) ? $fn : $fn->bindTo($ctx);
+      $this->then = \is_null($ctx) ? $then : $then->bindTo($ctx);
 
       $this->args = \is_array($args) ? $args : array();
       Await::add($this);

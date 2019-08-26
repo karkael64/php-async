@@ -10,7 +10,7 @@ if (!\class_exists("Async\Promise")) {
    */
 
   class Promise {
-    private $ctx = null,
+    private
       $result = null,
       $then = array(),
       $catch = array(),
@@ -24,16 +24,11 @@ if (!\class_exists("Async\Promise")) {
      * @param $fn {Closure.<$arg1 {*}, ...>} is the function executed that wait for
      *    `$resolve` execution or `$reject` execution or an error thrown.
      * @param $args {array|null} is the third parameter sent in `$fn` function.
-     * @param $ctx {object|null} is the context where `$fn` is executed (which mean set `$this` value) (default=`$this`).
      * @return {Async\Promise} new instance.
      */
 
-    function __construct (\Closure $fn, $args = null, $ctx = null) {
+    function __construct (\Closure $fn, $args = null) {
       if (!\is_array($args)) $args = array();
-      if (!\is_object($ctx)) $ctx = $this;
-      $this->ctx = $ctx;
-
-      $fn = $fn->bindTo($ctx);
       $success = (function ($result = null) { $this->run_then($result); })->bindTo($this);
       $failure = (function ($error = null) { $this->run_catch($error); })->bindTo($this);
 
@@ -55,7 +50,7 @@ if (!\class_exists("Async\Promise")) {
     function then (\Closure $then) {
       if ($this->isResolved) {
         try {
-          $then->call($this->ctx, $this->result);
+          $then($this->result);
         } catch (\Throwable $err) {
           $this->run_catch($err);
         }
@@ -75,7 +70,7 @@ if (!\class_exists("Async\Promise")) {
 
     function catch(\Closure $catch) {
       if ($this->isRejected) {
-        $catch->call($this->ctx, $this->result);
+        $catch($this->result);
       } else {
         \array_push($this->catch, $catch);
       }
@@ -93,19 +88,20 @@ if (!\class_exists("Async\Promise")) {
 
     function finally (\Closure $finally) {
       if ($this->isDone()) {
-        $finally->call($this->ctx, $this->result);
+        $finally($this->result);
       } else {
         \array_push($this->finally, $finally);
       }
       return $this;
     }
 
+
     private function run_then ($result = null) {
       if (!$this->isResolved && !$this->isRejected) {
         $this->isRejected = !($this->isResolved = true);
         $this->result = $result;
         try {
-          while($then = \array_shift($this->then)) $then->call($this->ctx, $result);
+          while($then = \array_shift($this->then)) $then($result);
           return $this->run_finally($result);
         } catch (\Throwable $err) {
           return $this->run_catch($err);
@@ -115,25 +111,27 @@ if (!\class_exists("Async\Promise")) {
       }
     }
 
+
     private function run_catch ($error = null) {
       if (!$this->isResolved && !$this->isRejected) {
         $this->isResolved = !($this->isRejected = true);
         $this->result = $error;
         if (count ($this->catch)) {
-          while($catch = \array_shift($this->catch)) $catch->call($this->ctx, $error);
+          while($catch = \array_shift($this->catch)) $catch($error);
         } else if ($error instanceof \Throwable) {
           throw $error;
         } else {
           throw new AsyncException("Unexpected error in Promise environment");
         }
-        return $this->run_finally($result, $this->ctx);
+        return $this->run_finally($result);
       } else {
         return $this;
       }
     }
 
+
     private function run_finally ($result = null) {
-      while($finally = \array_shift($this->finally)) $finally->call($this->ctx, $result);
+      while($finally = \array_shift($this->finally)) $finally($result);
       return $this;
     }
 
@@ -161,6 +159,7 @@ if (!\class_exists("Async\Promise")) {
     static function resolve ($result = null) {
       return new self(function ($resolve, $_, $args) { $resolve($args); }, $result);
     }
+
 
     /**
      * @static reject Create a promise instance that immediatly reject with

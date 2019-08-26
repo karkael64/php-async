@@ -4,6 +4,7 @@ namespace Async;
 require_once __DIR__ . "/Error.class.php";
 
 if (!\class_exists("Async\Await")) {
+
   class Await {
 
     private static $current = null;
@@ -40,8 +41,7 @@ if (!\class_exists("Async\Await")) {
      */
 
     function env(\Closure $env, $args = null, $ctx = null) {
-      if (!\is_object($ctx)) $ctx = $this;
-      $env = $env->bindTo($ctx);
+      $env = \is_null($ctx) ? $env : $env->bindTo($ctx);
       $args = \is_array($args) ? $args : array();
 
       if (self::$current !== $this) {
