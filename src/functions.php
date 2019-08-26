@@ -15,10 +15,9 @@ require_once __DIR__ . "/Promise.class.php";
  * @param $ctx {Object|null} is the context where `$env` is executed
  *    (default=`$this`).
  * @return {Async\Await} this instance.
- * @throws {Async|AsyncError} if first parameter is not a Closure.
  */
 
-function await($env, $args = null, $ctx = null) {
+function await(\Closure $env, $args = null, $ctx = null) {
   new Async\Await($env, $args, $ctx);
 }
 
@@ -38,11 +37,9 @@ function await($env, $args = null, $ctx = null) {
  * @param $ctx {Object} the context where `$fn` and `$then` are executed (it
  *    means `$this` will be `$ctx` value).
  * @return {Async\Async} new instance.
- * @throws {Async\AsyncError} if first parameter is not a Closure.
- * @throws {Async\AsyncError} if second parameter is not a Closure.
  * @throws {Async\AsyncError} if this instance is not created in an `await` context.
  */
 
-function async($fn, $then, $args = null, $ctx = null) {
+function async(\Closure $fn, \Closure $then, $args = null, $ctx = null) {
   new Async\Async($fn, $then, $args, $ctx);
 }

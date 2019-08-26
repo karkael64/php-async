@@ -20,10 +20,9 @@ if (!\class_exists("Async\Await")) {
      * @param $ctx {Object|null} is the context where `$env` is executed
      *    (default=`$this`).
      * @return {Async\Await} this instance.
-     * @throws {Async|AsyncError} if first parameter is not a Closure.
      */
 
-    function __construct($env, $args = null, $ctx = null) {
+    function __construct(\Closure $env, $args = null, $ctx = null) {
       $this->env($env, $args, $ctx);
     }
 
@@ -38,15 +37,11 @@ if (!\class_exists("Async\Await")) {
      * @param $ctx {Object|null} is the context where `$env` is executed
      *    (default=`$this`).
      * @return {Async\Await} this instance.
-     * @throws {Async|AsyncError} if first parameter is not a Closure.
      */
 
-    function env($env, $args = null, $ctx = null) {
+    function env(\Closure $env, $args = null, $ctx = null) {
       if (!\is_object($ctx)) $ctx = $this;
-
-      if ($env instanceof \Closure) $env = $env->bindTo($ctx);
-      else throw new AsyncError("First parameter is not a Closure");
-
+      $env = $env->bindTo($ctx);
       $args = \is_array($args) ? $args : array();
 
       if (self::$current !== $this) {

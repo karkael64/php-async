@@ -22,19 +22,14 @@ if (!\class_exists("Async\Async")) {
      * @param $ctx {Object} the context where `$fn` and `$then` are executed (it
      *    means `$this` will be `$ctx` value).
      * @return {Async\Async} new instance.
-     * @throws {Async\AsyncError} if first parameter is not a Closure instance.
-     * @throws {Async\AsyncError} if second parameter is not a Closure instance.
      * @throws {Async\AsyncError} if this instance is not created in an `await` context.
      */
 
-    function __construct($fn, $then, $args = null, $ctx = null) {
+    function __construct(\Closure $fn, \Closure $then, $args = null, $ctx = null) {
       if (!\is_object($ctx)) $ctx = $this;
 
-      if ($fn instanceof \Closure) $this->fn = $fn->bindTo($ctx);
-      else throw new AsyncError("First parameter should be a Closure");
-
-      if ($then instanceof \Closure) $this->then = $then->bindTo($ctx);
-      else throw new AsyncError("Second parameter should be a Closure");
+      $this->fn = $fn->bindTo($ctx);
+      $this->then = $then->bindTo($ctx);
 
       $this->args = \is_array($args) ? $args : array();
       Await::add($this);

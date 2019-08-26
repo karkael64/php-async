@@ -26,11 +26,9 @@ if (!\class_exists("Async\Promise")) {
      * @param $args {array|null} is the third parameter sent in `$fn` function.
      * @param $ctx {object|null} is the context where `$fn` is executed (which mean set `$this` value) (default=`$this`).
      * @return {Async\Promise} new instance.
-     * @throws {Async\AsyncError} if first parameter is not a Closure.
      */
 
-    function __construct ($fn, $args = null, $ctx = null) {
-      if (!($fn instanceof \Closure)) throw new AsyncError("First parameter should be a Closure");
+    function __construct (\Closure $fn, $args = null, $ctx = null) {
       if (!\is_array($args)) $args = array();
       if (!\is_object($ctx)) $ctx = $this;
       $this->ctx = $ctx;
@@ -52,24 +50,19 @@ if (!\class_exists("Async\Promise")) {
      *    execute it immediatly if promise instance is already resolved.
      * @param $then {Closure.<$arg1 {*}, ...>} is the function to register.
      * @return {Async\Promise} self instance.
-     * @throws {Async\ASyncError} if first parameter is not a Closure.
      */
 
-    function then ($then) {
-      if ($then instanceof \Closure) {
-        if ($this->isResolved) {
-          try {
-            $then->call($this->ctx, $this->result);
-          } catch (\Throwable $err) {
-            $this->run_catch($err);
-          }
-        } else {
-          \array_push($this->then, $then);
+    function then (\Closure $then) {
+      if ($this->isResolved) {
+        try {
+          $then->call($this->ctx, $this->result);
+        } catch (\Throwable $err) {
+          $this->run_catch($err);
         }
-        return $this;
       } else {
-        throw new AsyncError("First parameter should be a Closure");
+        \array_push($this->then, $then);
       }
+      return $this;
     }
 
 
@@ -78,20 +71,15 @@ if (!\class_exists("Async\Promise")) {
      *    execute it immediatly if promise instance is already rejected.
      * @param $catch {Closure.<$arg1 {*}, ...>} is the function to register.
      * @return {Async\Promise} self instance.
-     * @throws {Async\ASyncError} if first parameter is not a Closure.
      */
 
-    function catch($catch) {
-      if ($catch instanceof \Closure) {
-        if ($this->isRejected) {
-          $catch->call($this->ctx, $this->result);
-        } else {
-          \array_push($this->catch, $catch);
-        }
-        return $this;
+    function catch(\Closure $catch) {
+      if ($this->isRejected) {
+        $catch->call($this->ctx, $this->result);
       } else {
-        throw new AsyncError("First parameter should be a Closure");
+        \array_push($this->catch, $catch);
       }
+      return $this;
     }
 
 
@@ -101,20 +89,15 @@ if (!\class_exists("Async\Promise")) {
      *    (resolved or rejected).
      * @param $finally {Closure.<$arg1 {*}, ...>} is the function to register.
      * @return {Async\Promise} self instance.
-     * @throws {Async\ASyncError} if first parameter is not a Closure.
      */
 
-    function finally ($finally) {
-      if ($finally instanceof \Closure) {
-        if ($this->isDone()) {
-          $finally->call($this->ctx, $this->result);
-        } else {
-          \array_push($this->finally, $finally);
-        }
-        return $this;
+    function finally (\Closure $finally) {
+      if ($this->isDone()) {
+        $finally->call($this->ctx, $this->result);
       } else {
-        throw new AsyncError("First parameter should be a Closure");
+        \array_push($this->finally, $finally);
       }
+      return $this;
     }
 
     private function run_then ($result = null) {
@@ -149,7 +132,7 @@ if (!\class_exists("Async\Promise")) {
       }
     }
 
-    private function run_finally ($result = null, $ctx = null) {
+    private function run_finally ($result = null) {
       while($finally = \array_shift($this->finally)) $finally->call($this->ctx, $result);
       return $this;
     }
