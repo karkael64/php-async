@@ -2,7 +2,7 @@
 
 $delay = microtime(true) + 3;
 
-$test = function ($delay) {
+$test = function () use ($delay) {
   if ($delay < microtime(true)) return "delay";
 };
 
@@ -14,4 +14,4 @@ $then = function ($err, $m) {
   }
 };
 
-new Async\Async($test, $then, array($delay));
+new Async\Async($test, $then);

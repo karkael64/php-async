@@ -21,21 +21,19 @@ if (!\class_exists("Async\Promise")) {
 
     /**
      * @method __construct Create a promise instance.
-     * @param $fn {Closure.<$arg1 {*}, ...>} is the function executed that wait for
+     * @param $fn {Closure.<>} is the function executed that wait for
      *    `$resolve` execution or `$reject` execution or an error thrown.
-     * @param $args {array|null} is the third parameter sent in `$fn` function.
      * @return {Async\Promise} new instance.
      */
 
-    function __construct (\Closure $fn, $args = null) {
-      if (!\is_array($args)) $args = array();
+    function __construct (\Closure $fn) {
       $success = (function ($result = null) { $this->run_then($result); })->bindTo($this);
       $failure = (function ($error = null) { $this->run_catch($error); })->bindTo($this);
 
       try {
-        \call_user_func($fn, $success, $failure, $args);
+        \call_user_func($fn, $success, $failure);
       } catch (\Throwable $err) {
-        $fail->call($this, $err);
+        $failure->call($this, $err);
       }
     }
 
@@ -43,7 +41,7 @@ if (!\class_exists("Async\Promise")) {
     /**
      * @method then Add a function to execute when `resolve` event happen, or
      *    execute it immediatly if promise instance is already resolved.
-     * @param $then {Closure.<$arg1 {*}, ...>} is the function to register.
+     * @param $then {Closure.<>} is the function to register.
      * @return {Async\Promise} self instance.
      */
 
@@ -64,7 +62,7 @@ if (!\class_exists("Async\Promise")) {
     /**
      * @method catch Add a function to execute when `reject` event happen, or
      *    execute it immediatly if promise instance is already rejected.
-     * @param $catch {Closure.<$arg1 {*}, ...>} is the function to register.
+     * @param $catch {Closure.<>} is the function to register.
      * @return {Async\Promise} self instance.
      */
 
@@ -82,7 +80,7 @@ if (!\class_exists("Async\Promise")) {
      * @method finally Add a function to execute after `resolve` or `reject` event
      *    happen, or execute it immediatly if promise instance is already done
      *    (resolved or rejected).
-     * @param $finally {Closure.<$arg1 {*}, ...>} is the function to register.
+     * @param $finally {Closure.<>} is the function to register.
      * @return {Async\Promise} self instance.
      */
 
@@ -157,7 +155,7 @@ if (!\class_exists("Async\Promise")) {
      */
 
     static function resolve ($result = null) {
-      return new self(function ($resolve, $_, $args) { $resolve($args); }, $result);
+      return new self(function ($resolve, $_) use ($result) { $resolve($result); });
     }
 
 
@@ -170,7 +168,7 @@ if (!\class_exists("Async\Promise")) {
      */
 
     static function reject ($error = null) {
-      return new self(function ($_, $reject, $args) { $reject($args); }, $error);
+      return new self(function ($_, $reject) use ($error) { $reject($error); });
     }
   }
 }

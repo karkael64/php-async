@@ -8,46 +8,33 @@ if (!\class_exists("Async\Await")) {
   class Await {
 
     private static $current = null;
-    private $env, $args, $list = array();
+    private $env, $list = array();
 
 
     /**
      * @method __construct Create an async instance and register it in await context.
-     * @param $env {Closure.<$arg1 {*}, ...} is a function executed to register every async
-     *    instances, the function has for list of parameters `$args` and set `$this`
-     *    at value `$ctx` or at this instance of `Async\Await`.
-     * @param $args {array|null} is the argument sent as list of parameters in `$env`
-     *    (default=`null`).
-     * @param $ctx {Object|null} is the context where `$env` is executed
-     *    (default=`$this`).
+     * @param $env {Closure.<>} is a function executed to register every async
+     *    instances.
      * @return {Async\Await} this instance.
      */
 
-    function __construct(\Closure $env, $args = null, $ctx = null) {
-      $this->env($env, $args, $ctx);
+    function __construct(\Closure $env) {
+      $this->env($env);
     }
 
 
     /**
      * @method env Register async instances.
-     * @param $env {Closure.<$arg1 {*}, ...} is a function executed to register every async
-     *    instances, the function has for list of parameters `$args` and set `$this`
-     *    at value `$ctx` or at this instance of `Async\Await`.
-     * @param $args {array|null} is the argument sent as list of parameters in `$env`
-     *    (default=`null`).
-     * @param $ctx {Object|null} is the context where `$env` is executed
-     *    (default=`$this`).
+     * @param $env {Closure.<>} is a function executed to register every async
+     *    instances.
      * @return {Async\Await} this instance.
      */
 
-    function env(\Closure $env, $args = null, $ctx = null) {
-      $env = \is_null($ctx) ? $env : $env->bindTo($ctx);
-      $args = \is_array($args) ? $args : array();
-
+    function env(\Closure $env) {
       if (self::$current !== $this) {
         $prev = self::$current;
         self::$current = $this;
-        \call_user_func_array($env, $args);
+        $env($this);
         while (\count($this->list)) {
           $i = 0;
           while (isset($this->list[$i])) {
@@ -59,7 +46,7 @@ if (!\class_exists("Async\Await")) {
         }
         self::$current = $prev;
       } else {
-        \call_user_func_array($env, $args);
+        $env($this);
       }
 
       return $this;
