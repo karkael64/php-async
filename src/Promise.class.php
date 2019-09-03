@@ -21,9 +21,10 @@ if (!\class_exists("Async\Promise")) {
 
     /**
      * @method __construct Create a promise instance.
-     * @param $fn {Closure.<>} is the function executed that wait for
-     *    `$resolve` execution or `$reject` execution or an error thrown.
-     * @return {Async\Promise} new instance.
+     * @param $fn {Closure.<$resolve {Closure.<$result {*}>}, $reject {Closure.<$error {*}>}>}
+     *    is the function executed that wait for`$resolve` execution or `$reject`
+     *    execution or an error thrown.
+     * @return {Async\Promise.<$result {*}>.<$error {*}>} new instance.
      */
 
     function __construct (\Closure $fn) {
@@ -41,8 +42,8 @@ if (!\class_exists("Async\Promise")) {
     /**
      * @method then Add a function to execute when `resolve` event happen, or
      *    execute it immediatly if promise instance is already resolved.
-     * @param $then {Closure.<>} is the function to register.
-     * @return {Async\Promise} self instance.
+     * @param $then {Closure.<$result {*}>} is the function to register.
+     * @return {Async\Promise.<$result {*}>.<$error {*}>} self instance.
      */
 
     function then (\Closure $then) {
@@ -62,8 +63,8 @@ if (!\class_exists("Async\Promise")) {
     /**
      * @method catch Add a function to execute when `reject` event happen, or
      *    execute it immediatly if promise instance is already rejected.
-     * @param $catch {Closure.<>} is the function to register.
-     * @return {Async\Promise} self instance.
+     * @param $catch {Closure.<$error {*}>} is the function to register.
+     * @return {Async\Promise.<$result {*}>.<$error {*}>} self instance.
      */
 
     function catch(\Closure $catch) {
@@ -80,8 +81,8 @@ if (!\class_exists("Async\Promise")) {
      * @method finally Add a function to execute after `resolve` or `reject` event
      *    happen, or execute it immediatly if promise instance is already done
      *    (resolved or rejected).
-     * @param $finally {Closure.<>} is the function to register.
-     * @return {Async\Promise} self instance.
+     * @param $finally {Closure.<$result {*}>} is the function to register.
+     * @return {Async\Promise.<$result {*}>.<$error {*}>} self instance.
      */
 
     function finally (\Closure $finally) {
@@ -151,7 +152,7 @@ if (!\class_exists("Async\Promise")) {
      *    `$result` as result in `then` functions. It is helpful when a promise
      *    is expected but you already have the result.
      * @param $result {*} value of result in `then`.
-     * @return {Async\Promise} new instance already resolved.
+     * @return {Async\Promise.<$result {*}>.<>} new instance already resolved.
      */
 
     static function resolve ($result = null) {
@@ -164,11 +165,49 @@ if (!\class_exists("Async\Promise")) {
      *    `$error` as error in `catch` functions. It is helpful when a promise
      *    is expected but you already have the error it should throw.
      * @param $error {*} value of error in `catch`.
-     * @return {Async\Promise} new instance already rejected.
+     * @return {Async\Promise.<>.<$error {*}>} new instance already rejected.
      */
 
     static function reject ($error = null) {
       return new self(function ($_, $reject) use ($error) { $reject($error); });
+    }
+
+
+    /**
+     * @static all Verify all items of list of promises are done to resolve.
+     * @param $proms {array} list of promises.
+     * @return {Async\Promise.<>.<$error {*}>} new instance
+     */
+
+    static function all (array $proms) {
+      return new self(function ($resolve) use ($proms) {
+        async(function () use ($resolve, $proms) {
+          foreach ($proms as $prom) {
+            if ($prom instanceof Promise && !$prom->isDone()) return false;
+          }
+          $resolve();
+          return true;
+        });
+      });
+    }
+
+
+    /**
+     * @static any Verify any item of list of promises is done to resolve.
+     * @param $proms {array} list of promises.
+     * @return {Async\Promise.<>.<$error {*}>} new instance
+     */
+
+    static function any (array $proms) {
+      return new self(function ($resolve) use ($proms) {
+        async(function () use ($resolve, $proms) {
+          foreach ($proms as $prom) if ($prom instanceof Promise && $prom->isDone()) {
+            $resolve();
+            return true;
+          }
+          return false;
+        });
+      });
     }
   }
 }
