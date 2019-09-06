@@ -14,12 +14,12 @@ if (!\class_exists("Async\Await")) {
     /**
      * @method __construct Create an async instance and register it in await context.
      * @param $env {Closure.<>} is a function executed to register every async
-     *    instances.
+     *    instances (default=`null`).
      * @return {Async\Await} this instance.
      */
 
-    function __construct(\Closure $env) {
-      $this->env($env);
+    function __construct($env = null) {
+      if ($env instanceof \Closure) $this->env($env);
     }
 
 
@@ -34,7 +34,7 @@ if (!\class_exists("Async\Await")) {
       if (self::$current !== $this) {
         $prev = self::$current;
         self::$current = $this;
-        $env($this);
+        $prom = $env($this);
         while (\count($this->list)) {
           $i = 0;
           while (isset($this->list[$i])) {
@@ -49,7 +49,16 @@ if (!\class_exists("Async\Await")) {
         $env($this);
       }
 
-      return $this;
+      if ($prom instanceof Promise) {
+        $res = (function () {
+          if ($this->isRejected) {
+            if ($this->result instanceof Throwable) throw $this->result;
+            else throw new AsyncError("Unexpected error in Promise environment");
+          }
+          else return $this->result;
+        })->call($prom);
+        return $res;
+      }
     }
 
 
@@ -84,7 +93,7 @@ if (!\class_exists("Async\Await")) {
     /**
      * @static isAwaitContext This function verify that script is currently in an
      *    await context.
-     * @return {bool} `true` if script is in an await context.
+     * @return {boolean} `true` if script is in an await context.
      */
 
     static function isAwaitContext() {

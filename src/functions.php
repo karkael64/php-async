@@ -7,13 +7,14 @@ require_once __DIR__ . "/Promise.class.php";
 
 /**
  * @function await Create an async instance and register it in await context.
- * @param $env {Closure.<>} is a function executed to register every async
+ * @param $env {Closure.<$self {Async\Await}>} is a function executed to register every async
  *    instances.
- * @return {Async\Await} this instance.
+ * @return {*|null} if `$env` returns a Promise resolved, return its result.
+ * @throws {Throwable} if `$env` throws or returns a Promise rejected (return its error).
  */
 
 function await(\Closure $env) {
-  new Async\Await($env);
+  return (new Async\Await)->env($env);
 }
 
 

@@ -96,13 +96,14 @@ if (!\class_exists("Async\Promise")) {
 
 
     private function run_then ($result = null) {
-      if (!$this->isResolved && !$this->isRejected) {
+      if (!$this->isDone()) {
         $this->isRejected = !($this->isResolved = true);
         $this->result = $result;
         try {
-          while($then = \array_shift($this->then)) $then($result);
+          while ($then = \array_shift($this->then)) $then($result);
           return $this->run_finally($result);
         } catch (\Throwable $err) {
+          $this->isResolved = false;
           return $this->run_catch($err);
         }
       } else {
@@ -112,17 +113,17 @@ if (!\class_exists("Async\Promise")) {
 
 
     private function run_catch ($error = null) {
-      if (!$this->isResolved && !$this->isRejected) {
+      if (!$this->isDone()) {
         $this->isResolved = !($this->isRejected = true);
         $this->result = $error;
         if (count ($this->catch)) {
-          while($catch = \array_shift($this->catch)) $catch($error);
+          while ($catch = \array_shift($this->catch)) $catch($error);
         } else if ($error instanceof \Throwable) {
           throw $error;
         } else {
-          throw new AsyncException("Unexpected error in Promise environment");
+          throw new AsyncError("Unexpected error in Promise environment");
         }
-        return $this->run_finally($result);
+        return $this->run_finally($error);
       } else {
         return $this;
       }
@@ -144,6 +145,19 @@ if (!\class_exists("Async\Promise")) {
 
     function isDone () {
       return $this->isResolved || $this->isRejected;
+    }
+
+    function toString() {
+      return "[Async\\Promise]";
+    }
+
+    function valueOf() {
+      return array(
+        "class" => \get_class($this),
+        "then" => \count($this->then),
+        "catch" => \count($this->catch),
+        "finally" => \count($this->finally)
+      );
     }
 
 
