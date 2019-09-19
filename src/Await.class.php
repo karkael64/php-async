@@ -38,9 +38,10 @@ if (!\class_exists("Async\Await")) {
         while (\count($this->list)) {
           $i = 0;
           while (isset($this->list[$i])) {
+
             $async = $this->list[$i];
             if ($async instanceof Async) $async->test();
-            if (isset($this->list[$i]) && $this->list[$i] !== $async) $i++;
+            if (isset($this->list[$i]) && $this->list[$i] === $async) $i++;
           }
           \usleep(1);
         }
