@@ -178,11 +178,11 @@ if (!\class_exists("Async\Promise")) {
      * @static reject Create a promise instance that immediatly reject with
      *    `$error` as error in `catch` functions. It is helpful when a promise
      *    is expected but you already have the error it should throw.
-     * @param $error {*} value of error in `catch`.
-     * @return {Async\Promise.<>.<$error {*}>} new instance already rejected.
+     * @param $error {Throwable} value of error in `catch`.
+     * @return {Async\Promise.<>.<$error {Throwable}>} new instance already rejected.
      */
 
-    static function reject ($error = null) {
+    static function reject (\Throwable $error) {
       return new self(function ($_, $reject) use ($error) { $reject($error); });
     }
 
@@ -190,7 +190,7 @@ if (!\class_exists("Async\Promise")) {
     /**
      * @static all Verify all items of list of promises are done to resolve.
      * @param $proms {array} list of promises.
-     * @return {Async\Promise.<>.<$error {*}>} new instance
+     * @return {Async\Promise.<>.<$error {Throwable}>} new instance
      */
 
     static function all (array $proms) {
@@ -209,7 +209,7 @@ if (!\class_exists("Async\Promise")) {
     /**
      * @static any Verify any item of list of promises is done to resolve.
      * @param $proms {array} list of promises.
-     * @return {Async\Promise.<>.<$error {*}>} new instance
+     * @return {Async\Promise.<>.<$error {Throwable}>} new instance
      */
 
     static function any (array $proms) {
@@ -220,6 +220,27 @@ if (!\class_exists("Async\Promise")) {
             return true;
           }
           return false;
+        });
+      });
+    }
+
+
+    /**
+     * @static async Automaticaly return the async result in `then` event or
+     *    error catched in `catch` event.
+     * @param $fn {Closure.<>} is a function executed each tick of `await`
+     *    environment until it returns a truthfully value.
+     * @return {Async\Promise.<$result {*}>.<$error {Throwable}>}
+     */
+
+    static function async (\Closure $fn) {
+      return new self(function ($resolve, $reject) use ($fn) {
+        new Async($fn, function ($error, $result) use ($resolve, $reject) {
+          if ($error) {
+            $reject($error);
+          } else {
+            $resolve($result);
+          }
         });
       });
     }

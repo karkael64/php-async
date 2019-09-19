@@ -40,9 +40,9 @@ if (!\class_exists("Async\Await")) {
           while (isset($this->list[$i])) {
             $async = $this->list[$i];
             if ($async instanceof Async) $async->test();
-            $i++;
+            if (isset($this->list[$i]) && $this->list[$i] !== $async) $i++;
           }
-          \time_nanosleep(0, 1);
+          \usleep(1);
         }
         self::$current = $prev;
       } else {

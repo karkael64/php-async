@@ -8,7 +8,7 @@ It's now available! Just start your asynchronous environment with `await` functi
 
 You can :
 
-1. run `composer install amonite/async`, or
+1. run `composer require amonite/async`, or
 2. copy `async.phar` file in your project directory and load it with a `require`.
 
 ## Context
@@ -235,6 +235,12 @@ Tell if your script is currently in an `await` context.
 
 * _Syntax:_ `Async\Await::isAwaitContext() : boolean`
 * _Returns:_ `{boolean}` `true` if script is in an await context.
+
+
+### Static `add`
+
+
+### Static `remove`
 
 
 ____
