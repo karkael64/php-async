@@ -119,9 +119,9 @@ if (!\class_exists("Async\Promise")) {
         if (count ($this->catch)) {
           while ($catch = \array_shift($this->catch)) $catch($error);
         } else if ($error instanceof \Throwable) {
-          throw $error;
+          throw new AsyncError("Uncatched error in Promise environment", -1, $error);
         } else {
-          throw new AsyncError("Unexpected error in Promise environment");
+          throw new AsyncError("Unexpected error in Promise environment", -2);
         }
         return $this->run_finally($error);
       } else {
