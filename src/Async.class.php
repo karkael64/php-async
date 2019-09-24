@@ -39,16 +39,14 @@ if (!\class_exists("Async\Async")) {
      */
 
     function test() {
-      $do = $this->fn;
-      $next = $this->then;
       try {
-        if ($res = $do()) {
+        if ($res = ($this->fn)()) {
           Await::remove($this);
-          if (!\is_null($next)) $next(null, $res);
+          if (!\is_null($this->then)) ($this->then)(null, $res);
         }
       } catch (\Throwable $err) {
         Await::remove($this);
-        if (!\is_null($next)) $next($err, null);
+        if (!\is_null($this->then)) ($this->then)($err, null);
       }
       return $this;
     }
