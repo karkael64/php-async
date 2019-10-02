@@ -13,9 +13,9 @@ if (!\class_exists("Async\Await")) {
 
     /**
      * @method __construct Create an async instance and register it in await context.
-     * @param $env {Closure.<>} is a function executed to register every async
+     * @param Closure.<> $env is a function executed to register every async
      *    instances (default=`null`).
-     * @return {Async\Await} this instance.
+     * @return Async\Await this instance.
      */
 
     function __construct($env = null) {
@@ -25,9 +25,9 @@ if (!\class_exists("Async\Await")) {
 
     /**
      * @method env Register async instances.
-     * @param $env {Closure.<>} is a function executed to register every async
+     * @param Closure.<> $env is a function executed to register every async
      *    instances.
-     * @return {Async\Await} this instance.
+     * @return Async\Await this instance.
      */
 
     function env(\Closure $env) {
@@ -66,8 +66,8 @@ if (!\class_exists("Async\Await")) {
     /**
      * @static add Add an async instance in the current await context, that will
      *    test async every tick.
-     * @param $async {Async\Async} instance to test each tick.
-     * @throws {Async\AsyncError} if there is no await context available.
+     * @param Async\Async $async instance to test each tick.
+     * @throws Async\AsyncError if there is no await context available.
      */
 
     static function add(Async $async) {
@@ -80,8 +80,8 @@ if (!\class_exists("Async\Await")) {
      * @static remove Remove an async instance from current await context; when
      *    there is no more async in an await context, script is no more blocked in
      *    this waiting loop.
-     * @param $async {Async\Async} instance to remove of this await context.
-     * @throws {Async\AsyncError} if there is no await context available.
+     * @param Async\Async $async instance to remove of this await context.
+     * @throws Async\AsyncError if there is no await context available.
      */
 
     static function remove(Async $async) {
@@ -94,7 +94,7 @@ if (!\class_exists("Async\Await")) {
     /**
      * @static isAwaitContext This function verify that script is currently in an
      *    await context.
-     * @return {boolean} `true` if script is in an await context.
+     * @return boolean `true` if script is in an await context.
      */
 
     static function isAwaitContext() {

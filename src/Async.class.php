@@ -12,16 +12,16 @@ if (!\class_exists("Async\Async")) {
     /**
      * @method __construct Register a function that wait to be resolved or rejected
      *    each ticks of `await` environment or a timeout error (3000ms if not unset).
-     * @param $fn {Closure.<>} is a first function executed each ticks
+     * @param Closure.<> $fn is a first function executed each ticks
      *    of `await` environment until it returns a truthfully value, sent in
      *    `$then` as second parameter; if function throws an error, send it to
      *    `$then` as first parameter.
-     * @param $then {Closure.<$error {Throwable|null}, $result {*}>} is the function
+     * @param Closure.<Throwable|null $error, mixed $result> $then is the function
      *    executed right after an event happened in `$fn` ; when `$fn` resolves, the
      *    result is sent as second parameter `$result` or when `$fn` throws error, the
      *    error is sent as first parameter `$error` (else `$error` is `null`).
-     * @return {Async\Async} new instance.
-     * @throws {Async\AsyncError} if this instance is not created in an `await` context.
+     * @return Async\Async new instance.
+     * @throws Async\AsyncError if this instance is not created in an `await` context.
      */
 
     function __construct(\Closure $fn, \Closure $then = null) {
@@ -35,7 +35,7 @@ if (!\class_exists("Async\Async")) {
      * @method test Verify that the `$fn` function returns a truthfully answer: if it
      *    is truthfully, execute `$then` function; else do nothing; or catch error
      *    and send it to `$then` function.
-     * @return {Async\Async} this instance.
+     * @return Async\Async this instance.
      */
 
     function test() {

@@ -21,10 +21,10 @@ if (!\class_exists("Async\Promise")) {
 
     /**
      * @method __construct Create a promise instance.
-     * @param $fn {Closure.<$resolve {Closure.<$result {*}>}, $reject {Closure.<$error {*}>}>}
+     * @param Closure.<Closure.<mixed $result> $resolve, Closure.<Throwable $error> $reject>> $fn
      *    is the function executed that wait for`$resolve` execution or `$reject`
      *    execution or an error thrown.
-     * @return {Async\Promise.<$result {*}>.<$error {*}>} new instance.
+     * @return Async\Promise.<mixed $result>.<Throwable $error> new instance.
      */
 
     function __construct (\Closure $fn) {
@@ -42,8 +42,8 @@ if (!\class_exists("Async\Promise")) {
     /**
      * @method then Add a function to execute when `resolve` event happen, or
      *    execute it immediatly if promise instance is already resolved.
-     * @param $then {Closure.<$result {*}>} is the function to register.
-     * @return {Async\Promise.<$result {*}>.<$error {*}>} self instance.
+     * @param Closure.<mixed $result> $then is the function to register.
+     * @return Async\Promise.<mixed $result>.<Throwable $error> this instance.
      */
 
     function then (\Closure $then) {
@@ -63,8 +63,8 @@ if (!\class_exists("Async\Promise")) {
     /**
      * @method catch Add a function to execute when `reject` event happen, or
      *    execute it immediatly if promise instance is already rejected.
-     * @param $catch {Closure.<$error {*}>} is the function to register.
-     * @return {Async\Promise.<$result {*}>.<$error {*}>} self instance.
+     * @param Closure.<Throwable $error> $catch is the function to register.
+     * @return Async\Promise.<mixed $result>.<Throwable $error> this instance.
      */
 
     function catch(\Closure $catch) {
@@ -81,8 +81,8 @@ if (!\class_exists("Async\Promise")) {
      * @method finally Add a function to execute after `resolve` or `reject` event
      *    happen, or execute it immediatly if promise instance is already done
      *    (resolved or rejected).
-     * @param $finally {Closure.<$result {*}>} is the function to register.
-     * @return {Async\Promise.<$result {*}>.<$error {*}>} self instance.
+     * @param Closure.<mixed $result> $finally is the function to register.
+     * @return Async\Promise.<mixed $result>.<Throwable $error> self instance.
      */
 
     function finally (\Closure $finally) {
@@ -140,7 +140,7 @@ if (!\class_exists("Async\Promise")) {
      * @method isDone Verify if instance is done (resolved or rejected); when a
      *    promise instance is done, new registrations of `then` or `catch` or `finally`
      *    functions will be executed immediatly.
-     * @return {bool} `true` if this instance is resolved or rejected.
+     * @return bool `true` if this instance is resolved or rejected.
      */
 
     function isDone () {
@@ -165,8 +165,8 @@ if (!\class_exists("Async\Promise")) {
      * @static resolve Create a promise instance that immediatly resolve with
      *    `$result` as result in `then` functions. It is helpful when a promise
      *    is expected but you already have the result.
-     * @param $result {*} value of result in `then`.
-     * @return {Async\Promise.<$result {*}>.<>} new instance already resolved.
+     * @param mixed $result value of result in `then`.
+     * @return Async\Promise.<mixed $result>.<> new instance already resolved.
      */
 
     static function resolve ($result = null) {
@@ -178,8 +178,8 @@ if (!\class_exists("Async\Promise")) {
      * @static reject Create a promise instance that immediatly reject with
      *    `$error` as error in `catch` functions. It is helpful when a promise
      *    is expected but you already have the error it should throw.
-     * @param $error {Throwable} value of error in `catch`.
-     * @return {Async\Promise.<>.<$error {Throwable}>} new instance already rejected.
+     * @param Throwable $error value of error in `catch`.
+     * @return Async\Promise.<>.<Throwable $error> new instance already rejected.
      */
 
     static function reject (\Throwable $error) {
@@ -189,8 +189,8 @@ if (!\class_exists("Async\Promise")) {
 
     /**
      * @static all Verify all items of list of promises are done to resolve.
-     * @param $proms {array} list of promises.
-     * @return {Async\Promise.<>.<$error {Throwable}>} new instance
+     * @param array $proms list of promises.
+     * @return Async\Promise.<>.<Throwable $error> new instance
      */
 
     static function all (array $proms) {
@@ -208,8 +208,8 @@ if (!\class_exists("Async\Promise")) {
 
     /**
      * @static any Verify any item of list of promises is done to resolve.
-     * @param $proms {array} list of promises.
-     * @return {Async\Promise.<>.<$error {Throwable}>} new instance
+     * @param array $proms list of promises.
+     * @return Async\Promise.<>.<Throwable $error> new instance
      */
 
     static function any (array $proms) {
@@ -228,9 +228,9 @@ if (!\class_exists("Async\Promise")) {
     /**
      * @static async Automaticaly return the async result in `then` event or
      *    error catched in `catch` event.
-     * @param $fn {Closure.<>} is a function executed each tick of `await`
+     * @param Closure.<> $fn is a function executed each tick of `await`
      *    environment until it returns a truthfully value.
-     * @return {Async\Promise.<$result {*}>.<$error {Throwable}>}
+     * @return Async\Promise.<mixed $result>.<Throwable $error>
      */
 
     static function async (\Closure $fn) {
