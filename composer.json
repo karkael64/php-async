@@ -29,7 +29,11 @@
         "php": ">=7.2"
     },
     "type": "library",
-    "version": "2.5.0",
-    "timestamp": 1567783232554.976,
-    "date": "2019-09-06T17:20:32.554Z"
+    "version": "2.6.0",
+    "timestamp": 1582544067824.5398,
+    "date": "2020-02-24T12:34:27.824Z",
+    "scripts": {
+        "test": "php test\/test.php",
+        "version": "php -d phar.readonly=0 version.php"
+    }
 }

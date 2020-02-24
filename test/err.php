@@ -9,6 +9,6 @@ require_once "index.php";
   \async(function () {
     throw new Error("test", -123);
   }, function ($err) {
-    echo "catched:$err";
+    echo "catched:$err\n";
   });
 });

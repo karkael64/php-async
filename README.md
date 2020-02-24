@@ -39,7 +39,7 @@ Function `await` create an environment that allows to register an `async` event.
 
 ### Creating await environment
 
-The function `$fn_env` in `await($fn_env, $args, $ctx) : null` create an asynchronous environment, and wait (many ticks) for all asynchronous events ends. The script is blocked in this function until the end. The `$args` is sent in the function as list of parameters.
+The function `$fn_env` in `await($fn_env) : mixed` create an asynchronous environment, and wait (many ticks) for all asynchronous events ends. The script is blocked in this function until the end of its async functions. If `$fn_env` returns a `Promise`, the `await` function returns its anwser resolved or throw its error rejected.
 
 File wrapper `test/wrap.php` :
 ``` php
@@ -59,9 +59,9 @@ await(function () {
 
 ### Triggering asynchronous events
 
-The function `$test` in `async($test, $then, $args, $ctx) : null` is executed each tick of await function until it returns a truthfully value (or throws an error). The `args` are sent in `$test` function.
+The function `$test` in `async($test, $then) : null` is executed each tick of `await` function until it returns a truthfully value (or throws an error).
 
-The file `wrap` let all required files to use async functions.
+Here the file `wrap` let all required files to use async functions.
 
 In the next file, I combined both async and await. First async is registered, then we wait for `await` end of function and async events, and then register the last async function.
 
@@ -104,7 +104,7 @@ The console will print:
 
 ## Use Promise class
 
-A Promise is commonly used to flat asynchronous and verbose functions. It follows JavaScript standard but also add `$args` to send it in Promise function as parameter.
+A Promise is commonly used to flat asynchronous and verbose functions. It follows JavaScript standard.
 
 File `test/promise.php` :
 ``` php
@@ -120,9 +120,20 @@ $p = new Async\Promise(function ($resolve, $reject) use ($date) {
 
 $p->then(function () { echo "I waited for 2 seconds.\n"; throw new Error("test error"); });
 $p->catch(function () { echo "An error occurred in the promise or in then() function.\n"; });
+
+
+var_dump(await(function () use ($date) {
+  return Async\Promise::all(array(
+    Async\Promise::resolve(3.14),
+    Async\Promise::async(function () { return "Fibonacci"; }),
+    Async\Promise::async(function () use ($date) {
+      if (microtime(true) > $date + 3) return "Time elapsed!";
+    })
+  ));
+}));
 ```
 
-(!) In this example, the code is blocked until the 2 seconds passed.
+(!) In this example, the code is blocked until the 2 seconds passed, then wait for every `Promise` to be resolved.
 
 ## Use Async class
 
@@ -275,20 +286,62 @@ ____
 Create a Promise instance. Promise helps to flat async functions in a single instance.
 
 * _Syntax:_ `$prom = new Async\Promise(\Closure $fn) : Async\Promise`
-* _Parameter:_ `$fn {Closure.<$resolve {Closure.<$result {*}>}, $reject {Closure.<$error {*}>}>}` is the function executed that wait for`$resolve` execution or `$reject` execution or an error thrown.
-* _Returns:_ `{Async\Promise.<$result {*}>.<$error {*}>}` new instance.
+* _Parameter:_ `$fn {Closure.<$resolve {Closure.<$result {*}>}, $reject {Closure.<$error {Throwable}>}>}` is the function executed that wait for`$resolve` execution or `$reject` execution or an error thrown.
+* _Returns:_ `{Async\Promise.<$result {*}>.<$error {Throwable}>}` new instance.
 
 
 ### Method `then`
 
+Register a function to execute when Promise resolves.
+
+* _Syntax:_ `$prom->then(\Closure $fn)`
+* _Parameter:_ `$fn {Closure.<$result {*}>}` is the function executed when Promise is resolved. The `$result` value is sent in `$resolve`.
+* _Returns:_ `{Async\Promise}` self instance.
+
 ### Method `catch`
+
+Register a function to execute when Promise rejects.
+
+* _Syntax:_ `$prom->then(\Closure $fn)`
+* _Parameter:_ `$fn {Closure.<$error {Throwable}>}` is the function executed when Promise is rejected. The `$error` value is sent in `$reject`.
+* _Returns:_ `{Async\Promise}` self instance.
 
 ### Method `finally`
 
+Register a function to execute after Promise resolves or rejects.
+
+* _Syntax:_ `$prom->then(\Closure $fn)`
+* _Parameter:_ `$fn {Closure.<$result {*}>}` is the function executed after Promise is resolved or rejected. The `$result` value is sent in `$resolve` or in `$reject`.
+* _Returns:_ `{Async\Promise}` self instance.
+
 ### Static `resolve`
+
+Helpful function for creating an already resolved Promise.
+
+* _Syntax:_ `Async\Promise::resolve($result {*})`
+* _Parameter:_ `$result {*}` is the value resolved
+* _Returns:_ `{Async\Promise}` new instance.
 
 ### Static `reject`
 
+Helpful function for creating an already rejected Promise.
+
+* _Syntax:_ `Async\Promise::resolve($error {*})`
+* _Parameter:_ `$error {Throwable}` is the value rejected
+* _Returns:_ `{Async\Promise}` new instance.
+
 ### Static `all`
 
+Helpful function for creating a Promise that wait for list `$list` of Promise to be resolved.
+
+* _Syntax:_ `Async\Promise::all($list)`
+* _Parameter:_ `$list {Array.<{Async\Promise} ...>}` a list of Promises that should be resolved.
+* _Returns:_ `{Array.<{*} ...>}` the answer of each Promises.
+
 ### Static `any`
+
+Helpful function for creating a Promise that wait for one Promise of list `$list` of Promise to be resolved.
+
+* _Syntax:_ `Async\Promise::any($list)`
+* _Parameter:_ `$list {Array.<{Async\Promise} ...>}` a list of Promises that could be resolved.
+* _Returns:_ `{*}` the answer of the first resolved Promise.

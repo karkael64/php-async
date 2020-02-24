@@ -196,10 +196,14 @@ if (!\class_exists("Async\Promise")) {
     static function all (array $proms) {
       return new self(function ($resolve) use ($proms) {
         async(function () use ($resolve, $proms) {
+          $results = array();
           foreach ($proms as $prom) {
-            if ($prom instanceof Promise && !$prom->isDone()) return false;
+            if ($prom instanceof Promise && !$prom->isDone()) {
+              return false;
+            }
+            \array_push($results, $prom->result);
           }
-          $resolve();
+          $resolve($results);
           return true;
         });
       });
@@ -216,7 +220,7 @@ if (!\class_exists("Async\Promise")) {
       return new self(function ($resolve) use ($proms) {
         async(function () use ($resolve, $proms) {
           foreach ($proms as $prom) if ($prom instanceof Promise && $prom->isDone()) {
-            $resolve();
+            $resolve($prom->result);
             return true;
           }
           return false;
